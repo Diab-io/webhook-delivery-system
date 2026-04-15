@@ -1,9 +1,10 @@
-from app.apps.schemas import AppCreateRequest, AppCreateResponse, AppRead
+from app.clients.schemas import AppCreateRequest, AppCreateResponse, AppRead
 from app.users.service import current_active_user
 from app.users.models import User
-from app.apps.services import get_app_service, AppService
+from app.clients.services import get_app_service, AppService
 from fastapi import APIRouter, Depends
 from typing import List
+from uuid import UUID
 
 router = APIRouter()
 
@@ -22,5 +23,21 @@ async def get_user_apps(
     service: AppService = Depends(get_app_service)
 ):
     return await service.get_user_apps(current_user, active)
+
+@router.get("/{id}", response_model=List[AppRead])
+async def get_user_app(
+    id: UUID,
+    current_user: User = Depends(current_active_user),
+    service: AppService = Depends(get_app_service)
+):
+    return await service.get_user_app(current_user, id)
+
+@router.get("/{id}/deactivate", response_model=AppRead)
+async def deactivate_app(
+    id: UUID,
+    current_user: User = Depends(current_active_user),
+    service: AppService = Depends(get_app_service)
+):
+    return await service.deactivate_app(current_user, id)
 
 

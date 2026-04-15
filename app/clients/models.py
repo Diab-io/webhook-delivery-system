@@ -9,6 +9,7 @@ class App(Base):
 
     id: Mapped[UUID] = mapped_column(default=uuid4, primary_key=True)
     name: Mapped[str]
+    api_key_prefix: Mapped[str] = mapped_column(unique=True, index=True)
     api_key: Mapped[str] = mapped_column(unique=True)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
     active: Mapped[bool] = mapped_column(default=True)
