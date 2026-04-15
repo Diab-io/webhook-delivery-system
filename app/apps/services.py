@@ -8,9 +8,10 @@ from sqlalchemy.engine import Result
 from app.users.models import User
 from app.apps.models import App
 from app.apps.schemas import AppCreateRequest
-from app.core.exceptions import DuplicateUserApp
+from app.core.exceptions import DuplicateUserApp, AppNotFound, NotAppOwner
 from app.core.database import get_async_session
 from typing import Dict, Any, Optional, List
+from uuid import UUID
 
 
 class AppService:
@@ -66,6 +67,19 @@ class AppService:
         )
         result = await self.execute_query(query)
         return result.scalars()
+    
+    async def get_user_app(self, current_user: User, app_id: UUID):
+        app = await self.model.get(app_id)
+
+        if not app:
+            raise AppNotFound(app_id)
+        
+        user_id = current_user.id
+        if app.user_id != user_id:
+            raise NotAppOwner(user_id, app_id)
+        
+        return app
+    
 
 
 def get_app_service(db: AsyncSession = Depends(get_async_session)) -> AppService:
