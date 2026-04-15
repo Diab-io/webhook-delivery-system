@@ -21,7 +21,7 @@ class AppService:
         self.model = App
     
     def generate_api_key(self) -> str:
-        api_key = f"sk_{secrets.token_hex(4)}.{secrets.token_urlsafe(16)}"
+        api_key = f"sk_{secrets.token_hex(4)}.{secrets.token_urlsafe(32)}"
         return api_key
     
     async def execute_query(self, query: Executable) -> Result:
@@ -29,7 +29,7 @@ class AppService:
         return result
     
     async def _get_user_owned_app(self, current_user: User, app_id: UUID) -> App:
-        app = await self.model.get(app_id)
+        app = await self._db.get(self.model, app_id)
 
         if not app:
             raise AppNotFound(app_id)
@@ -70,7 +70,8 @@ class AppService:
         return {
             "id": new_app.id,
             "name": new_app.name,
-            "api_key": plain_api_key
+            "api_key": plain_api_key,
+            "active": new_app.active
         }
     
     async def get_user_apps(self, current_user: User, active: bool) -> Optional[List[App]]:
