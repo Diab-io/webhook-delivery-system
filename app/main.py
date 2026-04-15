@@ -3,9 +3,11 @@ from fastapi import Depends, FastAPI
 from app.users.models import User
 from app.users.schemas import UserCreate, UserRead, UserUpdate
 from app.users.service import auth_backend, current_active_user, fastapi_users
+from app.core.exceptions import register_exception_handlers
 
 
 app = FastAPI()
+register_exception_handlers(app)
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"]
