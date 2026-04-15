@@ -8,7 +8,7 @@ from uuid import UUID
 
 router = APIRouter()
 
-@router.post('/apps', response_model=AppCreateResponse)
+@router.post('/', response_model=AppCreateResponse)
 async def create_app(
     payload: AppCreateRequest,
     current_user: User = Depends(current_active_user),
@@ -24,7 +24,7 @@ async def get_user_apps(
 ):
     return await service.get_user_apps(current_user, active)
 
-@router.get("/{id}", response_model=List[AppRead])
+@router.get("/{id}", response_model=AppRead)
 async def get_user_app(
     id: UUID,
     current_user: User = Depends(current_active_user),
