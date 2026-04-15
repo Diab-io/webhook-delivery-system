@@ -4,6 +4,7 @@ from app.users.models import User
 from app.users.schemas import UserCreate, UserRead, UserUpdate
 from app.users.service import auth_backend, current_active_user, fastapi_users
 from app.core.exceptions import register_exception_handlers
+from app.clients.routers import router as client_route
 
 
 app = FastAPI()
@@ -31,6 +32,11 @@ app.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
     prefix="/users",
     tags=["users"],
+)
+app.include_router(
+    client_route,
+    prefix="/api/apps",
+    tags=["Apps"],
 )
 
 
