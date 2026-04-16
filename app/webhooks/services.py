@@ -6,14 +6,20 @@ from app.core.exceptions import AppNotActive
 from app.users.models import User
 from app.core.security.secrets import generate_webhook_secret
 from app.core.security.encryption import encrypt
+from uuid import UUID
 
 class WebhookService:
     def __init__(self, db: AsyncSession):
         self._db = db
         self.model = Webhook
     
-    async def register_webhook(self, payload: WebhookCreateRequest, current_user: User, app_service: AppService):
-        app_id = payload.app_id
+    async def register_webhook(
+            self,
+            payload: WebhookCreateRequest,
+            current_user: User,
+            app_service: AppService,
+            app_id: UUID
+    ):
         app = await app_service.get_user_owned_app(current_user, app_id)
 
         if not app.active:
