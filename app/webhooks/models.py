@@ -11,6 +11,7 @@ class Webhook(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     url: Mapped[str] = mapped_column(nullable=False)
     app_id: Mapped[UUID] = mapped_column(ForeignKey("apps.id"))
+    secret_key: Mapped[str] = mapped_column(nullable=False)
     active: Mapped[bool] = mapped_column(default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
