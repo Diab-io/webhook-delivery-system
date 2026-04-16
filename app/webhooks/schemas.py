@@ -5,7 +5,6 @@ from typing import Optional
 
 class WebhookCreateRequest(BaseModel):
     url: AnyHttpUrl
-    app_id: UUID
 
 class WebhookResponse(BaseModel):
     id: UUID
