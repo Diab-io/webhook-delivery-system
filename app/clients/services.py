@@ -20,16 +20,15 @@ class AppService:
         self._db = db
         self.model = App
     
-    def generate_api_key(self) -> str:
-        api_key = f"sk_{secrets.token_hex(4)}.{secrets.token_urlsafe(32)}"
-        return api_key
+    async def get_app_by_id(self, id: UUID) -> str:
+        return await self._db.get(self.model, id)
     
     async def execute_query(self, query: Executable) -> Result:
         result = await self._db.execute(query)
         return result
     
-    async def _get_user_owned_app(self, current_user: User, app_id: UUID) -> App:
-        app = await self._db.get(self.model, app_id)
+    async def get_user_owned_app(self, current_user: User, app_id: UUID) -> App:
+        app = await self.get_app_by_id(app_id)
 
         if not app:
             raise AppNotFound(app_id)
@@ -83,10 +82,10 @@ class AppService:
         return result.scalars()
     
     async def get_user_app(self, current_user: User, app_id: UUID) -> App:
-        return await self._get_user_owned_app(current_user, app_id)
+        return await self.get_user_owned_app(current_user, app_id)
     
     async def deactivate_app(self, current_user: User, app_id: UUID) -> App:
-        app = await self._get_user_owned_app(current_user, app_id)
+        app = await self.get_user_owned_app(current_user, app_id)
         app.active = False
 
         await self._db.commit()
