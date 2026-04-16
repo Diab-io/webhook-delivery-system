@@ -1,5 +1,5 @@
 from app.core.database import Base
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, DateTime
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
@@ -17,3 +17,5 @@ class Webhook(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         nullable=False)
+    
+    app: Mapped["App"] = relationship(back_populates="webhooks")
