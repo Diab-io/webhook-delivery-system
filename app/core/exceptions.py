@@ -17,6 +17,11 @@ class NotAppOwner(Exception):
         self.app_id = app_id
 
 
+class AppNotActive(Exception):
+    def __init__(self, app_id: UUID):
+        self.app_id = app_id
+
+
 def register_exception_handlers(app: FastAPI):
 
     @app.exception_handler(DuplicateUserApp)
@@ -49,5 +54,17 @@ def register_exception_handlers(app: FastAPI):
                 "detail": "NOT_APP_OWNER",
                 "app_id": app_id,
                 "user_id": user_id
+            }
+        )
+    
+    @app.exception_handler(AppNotActive)
+    async def app_not_active_handler(request, exc):
+        app_id = exc.app_id
+
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "detail": "APP_NOT_ACTIVE",
+                "app_id": app_id,
             }
         )
