@@ -1,7 +1,6 @@
-import secrets
-import bcrypt
 from fastapi import Depends
-from sqlalchemy import select, update
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Executable
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
@@ -92,6 +91,24 @@ class AppService:
         await self._db.refresh(app)
 
         return app
+    
+    async def get_app_webhooks(self, current_user: User, app_id: UUID):
+        stmt = (
+            select(App)
+            .options(selectinload(App.webhooks))
+            .where(
+                App.id == app_id,
+                App.user_id == current_user.id
+            )
+        )
+
+        result = await self.execute_query(stmt)
+        app = result.scalar_one_or_none()
+
+        if app is None:
+            raise AppNotFound(app_id)
+        
+        return app.webhooks
 
 
 def get_app_service(db: AsyncSession = Depends(get_async_session)) -> AppService:
