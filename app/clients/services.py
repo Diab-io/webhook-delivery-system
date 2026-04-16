@@ -8,7 +8,7 @@ from sqlalchemy.engine import Result
 from app.users.models import User
 from app.clients.models import App
 from app.clients.schemas import AppCreateRequest
-from app.clients.dependencies import hash_api_key
+from app.core.security.secrets import generate_api_key, hash_api_key
 from app.core.exceptions import DuplicateUserApp, AppNotFound, NotAppOwner
 from app.core.database import get_async_session
 from typing import Dict, Any, Optional, List
@@ -52,7 +52,7 @@ class AppService:
         if existing_app:
             raise DuplicateUserApp()
         
-        plain_api_key = self.generate_api_key()
+        plain_api_key = generate_api_key()
         api_key_prefix = plain_api_key.split('.', 1)[0]
 
         hashed_api_key = hash_api_key(plain_api_key)
