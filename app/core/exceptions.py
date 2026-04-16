@@ -22,6 +22,11 @@ class AppNotActive(Exception):
         self.app_id = app_id
 
 
+class WebhookNotFound(Exception):
+    def __init__(self, webhook_id: UUID):
+        self.webhook_id = webhook_id
+
+
 def register_exception_handlers(app: FastAPI):
 
     @app.exception_handler(DuplicateUserApp)
@@ -66,5 +71,17 @@ def register_exception_handlers(app: FastAPI):
             content={
                 "detail": "APP_NOT_ACTIVE",
                 "app_id": app_id,
+            }
+        )
+    
+    @app.exception_handler(WebhookNotFound)
+    async def webhook_not_found_handler(request, exc):
+        webhook_id = exc.webhook_id
+
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "detail": "WEBHOOK_NOT_FOUND",
+                "webhook_id": webhook_id,
             }
         )
