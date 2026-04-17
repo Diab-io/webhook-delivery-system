@@ -2,7 +2,8 @@ from app.clients.schemas import AppCreateRequest, AppCreateResponse, AppRead
 from app.users.service import current_active_user
 from app.users.models import User
 from app.clients.services import get_app_service, AppService
-from app.webhooks.schemas import WebhookResponse
+from app.webhooks.schemas import WebhookResponse, WebhookCreateResponse, WebhookCreateRequest
+from app.webhooks.services import WebhookService, get_webhook_service
 from fastapi import APIRouter, Depends
 from typing import List
 from uuid import UUID
@@ -33,7 +34,7 @@ async def get_user_app(
 ):
     return await service.get_user_app(current_user, id)
 
-@router.get("/{id}/deactivate", response_model=AppRead)
+@router.post("/{id}/deactivate", response_model=AppRead)
 async def deactivate_app(
     id: UUID,
     current_user: User = Depends(current_active_user),
@@ -45,7 +46,18 @@ async def deactivate_app(
 async def get_app_webhooks(
     id: UUID,
     current_user: User = Depends(current_active_user),
-    service: AppService = Depends(get_app_service)
+    app_service: AppService = Depends(get_app_service),
+    webhook_service: WebhookService = Depends(get_webhook_service)
 ):
-    return await service.get_app_webhooks(current_user, id)
+    return await webhook_service.get_app_webhooks(current_user, app_service, id)
+
+@router.post("/{id}/webhooks", response_model=WebhookCreateResponse, status_code=201)
+async def register_webhook(
+    id: UUID,
+    payload: WebhookCreateRequest,
+    current_user: User = Depends(current_active_user),
+    webhook_service: WebhookService = Depends(get_webhook_service),
+    app_service: AppService = Depends(get_app_service)
+):
+    return await webhook_service.register_webhook(payload, current_user, app_service, id)
 
