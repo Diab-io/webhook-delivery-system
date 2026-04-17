@@ -44,7 +44,7 @@ def register_exception_handlers(app: FastAPI):
             status_code=status.HTTP_404_NOT_FOUND,
             content={
                 "detail": "APP_NOT_FOUND",
-                "app_id": app_id
+                "app_id": str(app_id)
             }
         )
     
@@ -57,8 +57,8 @@ def register_exception_handlers(app: FastAPI):
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={
                 "detail": "NOT_APP_OWNER",
-                "app_id": app_id,
-                "user_id": user_id
+                "app_id": str(app_id),
+                "user_id": str(user_id)
             }
         )
     
@@ -70,7 +70,7 @@ def register_exception_handlers(app: FastAPI):
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
                 "detail": "APP_NOT_ACTIVE",
-                "app_id": app_id,
+                "app_id": str(app_id),
             }
         )
     
@@ -82,6 +82,6 @@ def register_exception_handlers(app: FastAPI):
             status_code=status.HTTP_404_NOT_FOUND,
             content={
                 "detail": "WEBHOOK_NOT_FOUND",
-                "webhook_id": webhook_id,
+                "webhook_id": str(webhook_id),
             }
         )
