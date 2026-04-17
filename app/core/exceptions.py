@@ -17,6 +17,16 @@ class NotAppOwner(Exception):
         self.app_id = app_id
 
 
+class AppNotActive(Exception):
+    def __init__(self, app_id: UUID):
+        self.app_id = app_id
+
+
+class WebhookNotFound(Exception):
+    def __init__(self, webhook_id: UUID):
+        self.webhook_id = webhook_id
+
+
 def register_exception_handlers(app: FastAPI):
 
     @app.exception_handler(DuplicateUserApp)
@@ -34,7 +44,7 @@ def register_exception_handlers(app: FastAPI):
             status_code=status.HTTP_404_NOT_FOUND,
             content={
                 "detail": "APP_NOT_FOUND",
-                "app_id": app_id
+                "app_id": str(app_id)
             }
         )
     
@@ -47,7 +57,31 @@ def register_exception_handlers(app: FastAPI):
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={
                 "detail": "NOT_APP_OWNER",
-                "app_id": app_id,
-                "user_id": user_id
+                "app_id": str(app_id),
+                "user_id": str(user_id)
+            }
+        )
+    
+    @app.exception_handler(AppNotActive)
+    async def app_not_active_handler(request, exc):
+        app_id = exc.app_id
+
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "detail": "APP_NOT_ACTIVE",
+                "app_id": str(app_id),
+            }
+        )
+    
+    @app.exception_handler(WebhookNotFound)
+    async def webhook_not_found_handler(request, exc):
+        webhook_id = exc.webhook_id
+
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "detail": "WEBHOOK_NOT_FOUND",
+                "webhook_id": str(webhook_id),
             }
         )
