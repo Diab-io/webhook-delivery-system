@@ -7,9 +7,12 @@ from app.clients.models import App
 from app.core.exceptions import AppNotActive, WebhookNotFound
 from app.users.models import User
 from app.core.security.secrets import generate_webhook_secret
+from app.core.database import get_async_session
 from app.core.security.encryption import encrypt
 from uuid import UUID
 from typing import Dict, Any
+from fastapi import Depends
+
 
 class WebhookService:
     def __init__(self, db: AsyncSession):
@@ -44,8 +47,11 @@ class WebhookService:
         webhook_secret = generate_webhook_secret()
         encrypted_webhook_secret = encrypt(webhook_secret)
 
+        dump = payload.model_dump()
+        dump['url'] = str(dump['url'])
+
         new_webhook = self._model(
-            **payload.model_dump(),
+            **dump,
             secret_key=encrypted_webhook_secret,
             app_id=app_id
         )  
@@ -90,3 +96,13 @@ class WebhookService:
         await self._db.refresh(webhook)
 
         return webhook
+    
+    async def get_app_webhooks(self, current_user: User, app_service: AppService, app_id: UUID):
+        await app_service.get_user_owned_app(current_user, app_id)
+        query = select(Webhook).where(Webhook.app_id == app_id)
+        result = await self._db.execute(query)
+        return result.scalars().all()
+
+
+def get_webhook_service(db: AsyncSession = Depends(get_async_session)) -> WebhookService:
+    return WebhookService(db)
