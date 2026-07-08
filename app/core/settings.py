@@ -10,3 +10,5 @@ MAIL_FROM = os.getenv("MAIL_FROM")
 MAIL_PORT = os.getenv("MAIL_PORT")
 MAIL_SERVER = os.getenv("MAIL_SERVER")
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
